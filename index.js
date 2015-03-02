@@ -17,7 +17,7 @@ var ERROR = "error";
 var EchoClient = function(config){
     this.config = config || {};
 
-    var requiredParams = ['echo_host', 'echo_port'];
+    var requiredParams = ['echo_endpoint'];
 
     for(var i in requiredParams){
         if (this.config[requiredParams[i]] === undefined) {

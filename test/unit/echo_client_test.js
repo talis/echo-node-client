@@ -7,26 +7,17 @@ var should = require('should'),
 
 describe("Echo Node Client Test Suite", function(){
     describe("- Constructor tests", function(){
-        it("- should throw error if config.echo_host is not supplied", function(done){
+        it("- should throw error if config.echo_endpoint is not supplied", function(done){
             var echoClient = function(){
                 return echo.createClient({});
             };
-            echoClient.should.throw("Missing Echo config: echo_host");
-            done();
-        });
-
-        it("- should throw error if config.echo_port is not supplied", function(done){
-            var echoClient = function(){
-                return echo.createClient({echo_host:'echo'});
-            };
-            echoClient.should.throw("Missing Echo config: echo_port");
+            echoClient.should.throw("Missing Echo config: echo_endpoint");
             done();
         });
         it("- should NOT throw any error if all config params are defined", function(done){
             var echoClient = function(){
                 return echo.createClient({
-                    echo_host:"http://echo",
-                    echo_port:3000
+                    echo_endpoint:"http://echo:3002"
             });
             };
             echoClient.should.not.throw();
@@ -37,8 +28,7 @@ describe("Echo Node Client Test Suite", function(){
     describe("- add events test", function(){
         it("- should throw error if no persona token supplied", function(done){
             var echoClient = echo.createClient({
-                echo_host:"http://echo",
-                echo_port:3000
+                echo_endpoint:"http://echo:3002"
             });
 
             var addEvents = function(){
@@ -50,8 +40,7 @@ describe("Echo Node Client Test Suite", function(){
         });
         it("- should throw error if no data supplied", function(done){
             var echoClient = echo.createClient({
-                echo_host:"http://echo",
-                echo_port:3000
+                echo_endpoint:"http://echo:3002"
             });
 
             var addEvents = function(){
@@ -63,8 +52,7 @@ describe("Echo Node Client Test Suite", function(){
         });
         it("- should throw error if data.class not supplied", function(done){
             var echoClient = echo.createClient({
-                echo_host:"http://echo",
-                echo_port:3000
+                echo_endpoint:"http://echo:3002"
             });
 
             var addEvents = function(){
@@ -76,8 +64,7 @@ describe("Echo Node Client Test Suite", function(){
         });
         it("- should throw error if data.source not supplied", function(done){
             var echoClient = echo.createClient({
-                echo_host:"http://echo",
-                echo_port:3000
+                echo_endpoint:"http://echo:3002"
             });
 
             var addEvents = function(){
@@ -91,8 +78,7 @@ describe("Echo Node Client Test Suite", function(){
             var echo = rewire("../../index.js");
 
             var echoClient = echo.createClient({
-                echo_host:"http://echo",
-                echo_port:3000
+                echo_endpoint:"http://echo:3002"
             });
             var requestStub = {
                 post:function(options, callback){
@@ -115,8 +101,7 @@ describe("Echo Node Client Test Suite", function(){
             var echo = rewire("../../index.js");
 
             var echoClient = echo.createClient({
-                echo_host:"http://echo",
-                echo_port:3000
+                echo_endpoint:"http://echo:3002"
             });
             var requestStub = {
                 post:function(options, callback){
@@ -140,8 +125,7 @@ describe("Echo Node Client Test Suite", function(){
             var echo = rewire("../../index.js");
 
             var echoClient = echo.createClient({
-                echo_host:"http://echo",
-                echo_port:3000
+                echo_endpoint:"http://echo:3002"
             });
             var requestStub = {
                 post:function(options, callback){
@@ -165,8 +149,7 @@ describe("Echo Node Client Test Suite", function(){
             var echo = rewire("../../index.js");
 
             var echoClient = echo.createClient({
-                echo_host:"http://echo",
-                echo_port:3000
+                echo_endpoint:"http://echo:3002"
             });
             var requestStub = {
                 post:function(options, callback){
@@ -190,8 +173,7 @@ describe("Echo Node Client Test Suite", function(){
             var echo = rewire("../../index.js");
 
             var echoClient = echo.createClient({
-                echo_host:"http://echo",
-                echo_port:3000
+                echo_endpoint:"http://echo:3002"
             });
             var requestStub = {
                 post:function(options, callback){
@@ -216,8 +198,7 @@ describe("Echo Node Client Test Suite", function(){
             var echo = rewire("../../index.js");
 
             var echoClient = echo.createClient({
-                echo_host:"http://echo",
-                echo_port:3000
+                echo_endpoint:"http://echo:3002"
             });
 
             var requestMock = {};
