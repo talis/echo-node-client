@@ -10,6 +10,8 @@ var ERROR = "error";
  * Create an Echo client
  *
  * @param {object} config Echo Client config
+ * @param {string} config.echo_host Echo host
+ * @param {string} config.echo_port Echo port
  * @constructor
  */
 var EchoClient = function(config){
@@ -26,11 +28,14 @@ var EchoClient = function(config){
 
 /**
  * Add an event or events
- * @todo document what these are
  * @param {string} token
- * @param {object} data
- * @param {string} data.class
- * @param {string} data.source
+ * @param {object} data Event data
+ * @param {string} data.class Classify the event
+ * @param {string} data.source Event source (usually the app it originates from
+ * @param {string} data.timestamp Event timestamp
+ * @param {string} data.user User performing the event
+ * @param {object} data.props Other properties associated with the event
+ * @callback callback
  */
 EchoClient.prototype.addEvents = function(token, data, callback){
     if(!token){
