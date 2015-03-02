@@ -52,7 +52,7 @@ EchoClient.prototype.addEvents = function(token, data, callback){
     }
 
     var requestOptions = {
-        url: this.config.echo_host+':'+this.config.echo_port+'/1/events',
+        url: this.config.echo_endpoint+'/1/events',
         headers: {
             'Accept': 'application/json',
             'Authorization':'Bearer '+token
