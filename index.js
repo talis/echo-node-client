@@ -51,7 +51,10 @@ EchoClient.prototype.addEvents = function(token, data, callback){
         headers: {
             'Accept': 'application/json',
             'Authorization':'Bearer '+token
-        }
+        },
+        body:data,
+        method:'POST',
+        json:true
     };
 
     request.post(requestOptions, function(err, response, body){

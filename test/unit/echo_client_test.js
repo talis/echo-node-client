@@ -111,6 +111,106 @@ describe("Echo Node Client Test Suite", function(){
             });
             done();
         });
+        it("- add events should return an error if call to request has missing option.body", function(done){
+            var echo = rewire("../../index.js");
+
+            var echoClient = echo.createClient({
+                echo_host:"http://echo",
+                echo_port:3000
+            });
+            var requestStub = {
+                post:function(options, callback){
+                    if(!options.body){
+                        var error = new Error('Missing field: options.body');
+                        callback(error);
+                    } else{
+                        callback(null);
+                    }
+                }
+            };
+
+            echo.__set__("request", requestStub);
+
+            echoClient.addEvents('secret', {class:'class', source:'source'}, function(err){
+                (err === null).should.be.true;
+            });
+            done();
+        });
+        it("- add events should return an error if call to request has missing option.method", function(done){
+            var echo = rewire("../../index.js");
+
+            var echoClient = echo.createClient({
+                echo_host:"http://echo",
+                echo_port:3000
+            });
+            var requestStub = {
+                post:function(options, callback){
+                    if(!options.method){
+                        var error = new Error('Missing field: options.method');
+                        callback(error);
+                    } else{
+                        callback(null);
+                    }
+                }
+            };
+
+            echo.__set__("request", requestStub);
+
+            echoClient.addEvents('secret', {class:'class', source:'source'}, function(err){
+                (err === null).should.be.true;
+            });
+            done();
+        });
+        it("- add events should return an error if call to request has option.method != POST", function(done){
+            var echo = rewire("../../index.js");
+
+            var echoClient = echo.createClient({
+                echo_host:"http://echo",
+                echo_port:3000
+            });
+            var requestStub = {
+                post:function(options, callback){
+                    if(options.method !== 'POST'){
+                        var error = new Error('Invalid field: options.method');
+                        callback(error);
+                    } else{
+                        callback(null);
+                    }
+                }
+            };
+
+            echo.__set__("request", requestStub);
+
+            echoClient.addEvents('secret', {class:'class', source:'source'}, function(err){
+                (err === null).should.be.true;
+            });
+            done();
+        });
+        it("- add events should return an error if call to request has missing option.json", function(done){
+            var echo = rewire("../../index.js");
+
+            var echoClient = echo.createClient({
+                echo_host:"http://echo",
+                echo_port:3000
+            });
+            var requestStub = {
+                post:function(options, callback){
+                    if(!options.json){
+                        var error = new Error('Missing field: options.json');
+                        callback(error);
+                    } else{
+                        callback(null);
+                    }
+                }
+            };
+
+            echo.__set__("request", requestStub);
+
+            echoClient.addEvents('secret', {class:'class', source:'source'}, function(err){
+                (err === null).should.be.true;
+            });
+            done();
+        });
         it("- add events should return no errors if everything is successful", function(done){
 
             var echo = rewire("../../index.js");
