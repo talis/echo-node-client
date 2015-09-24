@@ -6,7 +6,7 @@ Node Client for Echo
 ## Getting Started
 Install the module:
 
-```npm install node_client@git://github.com/talis/echo-node-client.git#0.1.0 --save```
+```npm install git://github.com/talis/echo-node-client.git#0.1.0 --save```
 
 Create an echo client as follows:
 
