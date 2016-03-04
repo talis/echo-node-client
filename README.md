@@ -16,6 +16,7 @@ var echoClient = echo.createClient({
     echo_endpoint:'http://echo:3002',
     enable_debug:true
 });
+```
 
 ## Documentation
 
@@ -42,6 +43,7 @@ echoClient.addEvents(token, {
         // Do some other stuff here...
     }
 });
+```
 
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
