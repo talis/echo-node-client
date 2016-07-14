@@ -2,6 +2,7 @@ Node Client for Echo
 ==============
 
 ![Build status](https://travis-ci.org/talis/echo-node-client.svg?branch=master)
+[![Dependency Status](https://dependencyci.com/github/talis/echo-node-client/badge)](https://dependencyci.com/github/talis/echo-node-client)
 
 ## Getting Started
 Install the module:
