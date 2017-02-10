@@ -3,8 +3,8 @@
 var request = require('request');
 
 // log severities
-var DEBUG = "debug";
-var ERROR = "error";
+var DEBUG = 'debug';
+var ERROR = 'error';
 
 /**
  * Create an Echo client
@@ -52,14 +52,14 @@ EchoClient.prototype.addEvents = function(token, data, callback){
     }
 
     var requestOptions = {
-        url: this.config.echo_endpoint+'/1/events',
+        url: this.config.echo_endpoint + '/1/events',
         headers: {
             'Accept': 'application/json',
-            'Authorization':'Bearer '+token
+            'Authorization': 'Bearer ' + token
         },
-        body:data,
-        method:'POST',
-        json:true
+        body: data,
+        method: 'POST',
+        json: true
     };
 
     request.post(requestOptions, function(err, response, body){
@@ -71,7 +71,45 @@ EchoClient.prototype.addEvents = function(token, data, callback){
     });
 
     this.debug(JSON.stringify(requestOptions));
+};
 
+/**
+ * Request analytics using a passed path
+ * @param  {string}   token         Persona token
+ * @param  {string}   queryPath     URL path to query
+ * @param  {boolean}  useCache      Indicates if cache should be used or not
+ * @callback callback
+ */
+EchoClient.prototype.requestAnalytics = function(token, queryPath, useCache, callback) {
+    if(!token){
+        throw new Error('Missing Persona token');
+    }
+    if(!queryPath){
+        throw new Error('Missing Analytics Query Path');
+    }
+
+    var requestOptions = {
+        url: this.config.echo_endpoint + queryPath,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+        }
+    };
+
+    if (useCache === false) {
+        requestOptions.headers['cache-control'] = 'none';
+    }
+
+    request.get(requestOptions, function(err, response, body) {
+        if (err) {
+            callback(err);
+        } else {
+            callback(null, body);
+        }
+    });
+
+    this.debug(JSON.stringify(requestOptions));
 };
 
 /**
