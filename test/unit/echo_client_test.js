@@ -230,4 +230,98 @@ describe("Echo Node Client Test Suite", function(){
             });
         });
     });
+
+    describe('- query analytics tests', function(){
+        it('- should throw error if no persona token supplied', function(done){
+            var echoClient = echo.createClient({
+                echo_endpoint: 'http://echo:3002'
+            });
+
+            var queryAnalytics = function(){
+                return echoClient.queryAnalytics(null, null, false, function(err, result){});
+            };
+
+            queryAnalytics.should.throw('Missing Persona token');
+            done();
+        });
+        it('- should throw error if no query string supplied', function(done){
+            var echoClient = echo.createClient({
+                echo_endpoint: 'http://echo:3002'
+            });
+
+            var queryAnalytics = function(){
+                return echoClient.queryAnalytics('secret', null, false, function(err, result){});
+            };
+
+            queryAnalytics.should.throw('Missing Analytics queryPath');
+            done();
+        });
+        it('- query analytics should return an error if call to request returns an error', function(done){
+            var echo = rewire('../../index.js');
+
+            var echoClient = echo.createClient({
+                echo_endpoint: 'http://echo:3002'
+            });
+            var requestStub = {
+                get:function(options, callback){
+                    var error = new Error('Error communicating with Echo');
+                    callback(error);
+                }
+            };
+
+            echo.__set__('request', requestStub);
+
+            echoClient.queryAnalytics('secret', 'query', false, function(err, result){
+                (err === null).should.be.false;
+                err.message.should.equal('Error communicating with Echo');
+                (typeof result).should.equal('undefined');
+            });
+            done();
+        });
+        it("- query analytics should return no errors if everything is successful", function(done){
+            var echo = rewire('../../index.js');
+
+            var echoClient = echo.createClient({
+                echo_endpoint: 'http://echo:3002'
+            });
+
+            var requestMock = {};
+            requestMock.get = function(options, callback){
+                var data = {
+                      "head": {
+                        "type": "sum",
+                        "class": "player.timer.2",
+                        "property": "interval_with_decay",
+                        "group_by": "user",
+                        "filter": {
+                          "module_id": "589c8c0e8bbcb8ae13000001"
+                        },
+                        "user": {
+                          "exclude": "qVyfsQhlMY0T2_Bl7eotrg"
+                        },
+                        "from": "2017-02-01T00:00:00",
+                        "to": "2017-02-13T00:00:00",
+                        "count": 1
+                      },
+                      "results": [
+                        {
+                          "user": "MPWubWyXy84sHl8SY5ub4A",
+                          "interval_with_decay": 209726
+                        }
+                      ]
+                };
+                callback(null, {}, data);
+            };
+
+            echo.__set__("request", requestMock);
+
+            echoClient.queryAnalytics('secret', 'query', false, function(err, result){
+                (err === null).should.be.true;
+                (result.results instanceof Array).should.be.true;
+                result.results.length.should.equal(1);
+                result.results[0].user.should.equal("MPWubWyXy84sHl8SY5ub4A");
+                done();
+            });
+        });
+    });
 });

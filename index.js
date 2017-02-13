@@ -91,7 +91,7 @@ EchoClient.prototype.queryAnalytics = function(token, queryPath, useCache, callb
         throw new Error('Missing Persona token');
     }
     if(!queryPath){
-        throw new Error('Missing Analytics Query Path');
+        throw new Error('Missing Analytics queryPath');
     }
 
     var requestOptions = {
