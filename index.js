@@ -74,13 +74,13 @@ EchoClient.prototype.addEvents = function(token, data, callback){
 };
 
 /**
- * Request analytics using a passed path
+ * Query analytics using a passed path
  * @param  {string}   token         Persona token
  * @param  {string}   queryPath     URL path to query
  * @param  {boolean}  useCache      Indicates if cache should be used or not
  * @callback callback
  */
-EchoClient.prototype.requestAnalytics = function(token, queryPath, useCache, callback) {
+EchoClient.prototype.queryAnalytics = function(token, queryPath, useCache, callback) {
     if(!token){
         throw new Error('Missing Persona token');
     }
@@ -89,7 +89,7 @@ EchoClient.prototype.requestAnalytics = function(token, queryPath, useCache, cal
     }
 
     var requestOptions = {
-        url: this.config.echo_endpoint + queryPath,
+        url: this.config.echo_endpoint + '/1/analytics/' + queryPath,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
