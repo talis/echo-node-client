@@ -37,41 +37,47 @@ var EchoClient = function(config){
  * @param {object} data.props Other properties associated with the event
  * @callback callback
  */
-EchoClient.prototype.addEvents = function(token, data, callback){
-    if(!token){
-        throw new Error('Missing Persona token');
-    }
-    if(!data){
-        throw new Error('Missing data');
-    }
-    if(!data.class){
-        throw new Error('Missing field data.class');
-    }
-    if(!data.source){
-        throw new Error('Missing field data.source');
-    }
+ EchoClient.prototype.addEvents = function(token, data, callback){
+     if(!token){
+         throw new Error('Missing Persona token');
+     }
 
-    var requestOptions = {
-        url: this.config.echo_endpoint + '/1/events',
-        headers: {
-            'Accept': 'application/json',
-            'Authorization': 'Bearer ' + token
-        },
-        body: data,
-        method: 'POST',
-        json: true
-    };
+     if(!data){
+         throw new Error('Missing data');
+     }
 
-    request.post(requestOptions, function(err, response, body){
-        if(err){
-            callback(err);
-        } else{
-            callback(null, body);
-        }
-    });
+     // multiple events can be written by posting an array
+     // if not an array, check data looks ok
+     if (!(data instanceof Array)) {
+         if(!data.class){
+             throw new Error('Missing field data.class');
+         }
+         if(!data.source){
+             throw new Error('Missing field data.source');
+         }
+     }
 
-    this.debug(JSON.stringify(requestOptions));
-};
+     var requestOptions = {
+         url: this.config.echo_endpoint + '/1/events',
+         headers: {
+             'Accept': 'application/json',
+             'Authorization': 'Bearer ' + token
+         },
+         body: data,
+         method: 'POST',
+         json: true
+     };
+
+     request.post(requestOptions, function(err, response, body){
+         if(err){
+             callback(err);
+         } else{
+             callback(null, body);
+         }
+     });
+
+     this.debug(JSON.stringify(requestOptions));
+ };
 
 /**
  * Query analytics using a passed path
