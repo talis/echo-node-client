@@ -111,6 +111,7 @@ EchoClient.prototype.queryAnalytics = function(token, queryOperator, queryParams
     var constructQueryStringResponse = this._queryStringParams(queryParams);
 
     if (constructQueryStringResponse.errors) {
+        this.error('One or more invalid analytics queryParams where supplied: ' + constructQueryStringResponse.errors.join());
         throw new Error('Invalid Analytics queryParams');
     }
 
