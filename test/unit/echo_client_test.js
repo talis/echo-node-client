@@ -1,9 +1,12 @@
 'use strict';
 
-var should = require('should'),
-    assert = require('assert'),
-    echo = require('../../index.js'),
-    rewire = require('rewire');
+var should = require('should');
+var assert = require('assert');
+var echo = require('../../index.js');
+var rewire = require('rewire');
+var sinon = require('sinon');
+var request = require('request');
+var sandbox;
 
 describe("Echo Node Client Test Suite", function(){
     describe("- Constructor tests", function(){
@@ -231,63 +234,146 @@ describe("Echo Node Client Test Suite", function(){
         });
     });
 
-    describe('- query analytics tests', function(){
+    describe('- query analytics tests', function(){        
+        beforeEach(function () {
+            sandbox = sinon.sandbox.create();
+        });
+
+        afterEach(function () {
+            sandbox.restore();
+        });
+
         it('- should throw error if no persona token supplied', function(done){
             var echoClient = echo.createClient({
                 echo_endpoint: 'http://echo:3002'
             });
 
             var queryAnalytics = function(){
-                return echoClient.queryAnalytics(null, null, false, function(err, result){});
+                return echoClient.queryAnalytics(null, null, null, false, function(err, result){});
             };
 
             queryAnalytics.should.throw('Missing Persona token');
             done();
         });
-        it('- should throw error if no query string supplied', function(done){
+        it('- should throw error if no query operator supplied', function(done){
             var echoClient = echo.createClient({
                 echo_endpoint: 'http://echo:3002'
             });
 
             var queryAnalytics = function(){
-                return echoClient.queryAnalytics('secret', null, false, function(err, result){});
+                return echoClient.queryAnalytics('secret', null, null, false, function(err, result){});
             };
 
-            queryAnalytics.should.throw('Missing Analytics queryPath');
+            queryAnalytics.should.throw('Missing Analytics queryOperator');
             done();
         });
-        it('- query analytics should return an error if call to request returns an error', function(done){
-            var echo = rewire('../../index.js');
-
+        it('- should throw error if invalid query operator supplied', function(done){
             var echoClient = echo.createClient({
                 echo_endpoint: 'http://echo:3002'
             });
-            var requestStub = {
-                get:function(options, callback){
-                    var error = new Error('Error communicating with Echo');
-                    callback(error);
-                }
+
+            var queryAnalytics = function(){
+                return echoClient.queryAnalytics('secret', 'duff', null, false, function(err, result){});
             };
 
-            echo.__set__('request', requestStub);
+            queryAnalytics.should.throw('Invalid Analytics queryOperator');
+            done();
+        });
+        it('- should throw error if no query parameters supplied', function(done){
+            var echoClient = echo.createClient({
+                echo_endpoint: 'http://echo:3002'
+            });
 
-            echoClient.queryAnalytics('secret', 'query', false, function(err, result){
+            var queryAnalytics = function(){
+                return echoClient.queryAnalytics('secret', 'sum', null, false, function(err, result){});
+            };
+
+            queryAnalytics.should.throw('Missing Analytics queryParams');
+            done();
+        });
+        it('- should throw error if invalid query parameters supplied', function(done){
+            var echoClient = echo.createClient({
+                echo_endpoint: 'http://echo:3002'
+            });
+
+            var params = {
+                duffParam: 'duffValue'
+            };
+
+            var queryAnalytics = function(){
+                return echoClient.queryAnalytics('secret', 'sum', params, false, function(err, result){});
+            };
+
+            queryAnalytics.should.throw('Invalid Analytics queryParams');
+            done();
+        });
+        it('- should not throw an error if valid query parameters supplied', function(done){
+            var echoClient = echo.createClient({
+                echo_endpoint: 'http://echo:3002'
+            });
+
+            var params = {
+                class: 'testclass',
+                source: 'testsources',
+                property: 'testproperty',
+                interval: 'testinterval',
+                group_by: 'testgroupby',
+                key: 'testkey',
+                value: 'testvalue',
+                from: 'testfrom',
+                to: 'testto',
+                percentile: 'testpercentile',
+                user: 'testuser',
+                'user.include': 'includeuser',
+                'user.exclude': 'excludeuser',
+                filter: 'testfilter',
+                'filter.test': 'testfilter',
+                n: 'testn',
+                'n.something': 'something'
+            };
+
+            var queryAnalytics = function(){
+                return echoClient.queryAnalytics('secret', 'sum', params, false, function(err, result){});
+            };
+
+            queryAnalytics.should.not.throw('Invalid Analytics queryParams');
+            done();
+        });
+        it('- query analytics should return an error if call to request returns an error', function(done){
+            var endPoint = 'http://echo:3002';
+
+            var echoClient = echo.createClient({
+                echo_endpoint: endPoint
+            });
+
+            var requestStub = sandbox.stub(request, 'get');
+            requestStub.yields(new Error('Error communicating with Echo'));
+
+            var params = {
+                class: 'testclass'
+            };
+
+            echoClient.queryAnalytics('secret', 'sum', params, false, function(err, result){
+                var firstCall = requestStub.firstCall;
                 (err === null).should.be.false;
+                requestStub.callCount.should.equal(1);
+                firstCall.args[0].method.should.equal('GET');
+                firstCall.args[0].url.should.equal(endPoint + '/1/analytics/sum?class=testclass');
+                firstCall.args[0].headers['cache-control'].should.equal('none');
                 err.message.should.equal('Error communicating with Echo');
                 (typeof result).should.equal('undefined');
             });
             done();
         });
         it("- query analytics should return no errors if everything is successful", function(done){
-            var echo = rewire('../../index.js');
+            var endPoint = 'http://echo:3002';
 
             var echoClient = echo.createClient({
-                echo_endpoint: 'http://echo:3002'
+                echo_endpoint: endPoint
             });
 
-            var requestMock = {};
-            requestMock.get = function(options, callback){
-                var data = {
+            var requestStub = sandbox.stub(request, 'get');
+            requestStub.yields(null, {}, {
                       "head": {
                         "type": "sum",
                         "class": "player.timer.2",
@@ -309,17 +395,97 @@ describe("Echo Node Client Test Suite", function(){
                           "interval_with_decay": 209726
                         }
                       ]
-                };
-                callback(null, {}, data);
+                    }
+            );
+
+            var params = {
+                class: 'player.timer.2',
+                property: 'interval_with_decay',
+                group_by: 'user',
+                'filter.module_id': '589c8c0e8bbcb8ae13000001',
+                'user.exclude': 'qVyfsQhlMY0T2_Bl7eotrg',
+                from: '2017-02-01T00:00:00',
+                to: '2017-02-13T00:00:00'
             };
 
-            echo.__set__("request", requestMock);
-
-            echoClient.queryAnalytics('secret', 'query', false, function(err, result){
+            echoClient.queryAnalytics('secret', 'sum', params, false, function(err, result){
+                var firstCall = requestStub.firstCall;
                 (err === null).should.be.true;
+                requestStub.callCount.should.equal(1);
+                firstCall.args[0].method.should.equal('GET');
+                firstCall.args[0].headers['cache-control'].should.equal('none');
                 (result.results instanceof Array).should.be.true;
                 result.results.length.should.equal(1);
-                result.results[0].user.should.equal("MPWubWyXy84sHl8SY5ub4A");
+                result.results[0].user.should.equal('MPWubWyXy84sHl8SY5ub4A');
+                result.head.class.should.equal(params.class);
+                result.head.property.should.equal(params.property);
+                result.head.group_by.should.equal(params.group_by);
+                result.head.filter.module_id.should.equal(params['filter.module_id']);
+                result.head.user.exclude.should.equal(params['user.exclude']);
+                result.head.from.should.equal(params.from);
+                result.head.to.should.equal(params.to);
+                done();
+            });
+        });
+        it("- query analytics should set cache header and return no errors if everything is successful", function(done){
+            var endPoint = 'http://echo:3002';
+
+            var echoClient = echo.createClient({
+                echo_endpoint: endPoint
+            });
+
+            var requestStub = sandbox.stub(request, 'get');
+            requestStub.yields(null, {}, {
+                      "head": {
+                        "type": "sum",
+                        "class": "player.timer.2",
+                        "property": "interval_with_decay",
+                        "group_by": "user",
+                        "filter": {
+                          "module_id": "589c8c0e8bbcb8ae13000001"
+                        },
+                        "user": {
+                          "exclude": "qVyfsQhlMY0T2_Bl7eotrg"
+                        },
+                        "from": "2017-02-01T00:00:00",
+                        "to": "2017-02-13T00:00:00",
+                        "count": 1
+                      },
+                      "results": [
+                        {
+                          "user": "MPWubWyXy84sHl8SY5ub4A",
+                          "interval_with_decay": 209726
+                        }
+                      ]
+                    }
+            );
+
+            var params = {
+                class: 'player.timer.2',
+                property: 'interval_with_decay',
+                group_by: 'user',
+                'filter.module_id': '589c8c0e8bbcb8ae13000001',
+                'user.exclude': 'qVyfsQhlMY0T2_Bl7eotrg',
+                from: '2017-02-01T00:00:00',
+                to: '2017-02-13T00:00:00'
+            };
+
+            echoClient.queryAnalytics('secret', 'sum', params, true, function(err, result){
+                var firstCall = requestStub.firstCall;
+                (err === null).should.be.true;
+                requestStub.callCount.should.equal(1);
+                firstCall.args[0].method.should.equal('GET');
+                firstCall.args[0].headers.should.not.contain('cache-control');
+                (result.results instanceof Array).should.be.true;
+                result.results.length.should.equal(1);
+                result.results[0].user.should.equal('MPWubWyXy84sHl8SY5ub4A');
+                result.head.class.should.equal(params.class);
+                result.head.property.should.equal(params.property);
+                result.head.group_by.should.equal(params.group_by);
+                result.head.filter.module_id.should.equal(params['filter.module_id']);
+                result.head.user.exclude.should.equal(params['user.exclude']);
+                result.head.from.should.equal(params.from);
+                result.head.to.should.equal(params.to);
                 done();
             });
         });

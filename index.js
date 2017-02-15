@@ -1,6 +1,7 @@
 'use strict';
 
 var request = require('request');
+var _ = require('lodash');
 
 // log severities
 var DEBUG = 'debug';
@@ -80,22 +81,40 @@ var EchoClient = function(config){
  };
 
 /**
- * Query analytics using a passed path
- * @param  {string}   token         Persona token
- * @param  {string}   queryPath     URL path to query
- * @param  {boolean}  useCache      Indicates if cache should be used or not
+ * Query analytics using a passed operator and parameters
+ * @param  {string}   token             Persona token
+ * @param  {string}   queryOperator     Query operator (hits, average, sum, max or funnel)
+ * @param  {object}   queryParams       Hash of parameters to add to the query
+ * @param  {boolean}  useCache          Indicates if cache should be used or not
  * @callback callback
  */
-EchoClient.prototype.queryAnalytics = function(token, queryPath, useCache, callback) {
-    if(!token){
+EchoClient.prototype.queryAnalytics = function(token, queryOperator, queryParams, useCache, callback) {
+    if (!token) {
         throw new Error('Missing Persona token');
     }
-    if(!queryPath){
-        throw new Error('Missing Analytics queryPath');
+
+    if (!queryOperator) {
+        throw new Error('Missing Analytics queryOperator');
+    }
+
+    var validOperators = ['hits', 'average', 'sum', 'max', 'funnel'];
+
+    if (validOperators.indexOf(queryOperator) === -1) {
+        throw new Error('Invalid Analytics queryOperator');
+    }
+
+    if (!queryParams) {
+        throw new Error('Missing Analytics queryParams');
+    }
+
+    var constructQueryStringResponse = this._queryStringParams(queryParams);
+
+    if (constructQueryStringResponse.errors) {
+        throw new Error('Invalid Analytics queryParams');
     }
 
     var requestOptions = {
-        url: this.config.echo_endpoint + '/1/analytics/' + queryPath,
+        url: this.config.echo_endpoint + '/1/analytics/' + queryOperator + '?' + constructQueryStringResponse.queryString,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -116,6 +135,66 @@ EchoClient.prototype.queryAnalytics = function(token, queryPath, useCache, callb
     });
 
     this.debug(JSON.stringify(requestOptions));
+};
+
+/**
+ * Build up a query string
+ * @param {object} params
+ * @returns {string}
+ * @private
+ */
+EchoClient.prototype._queryStringParams = function(params) {
+    var queryString = '';
+    var queryStringParams = [];
+    var paramErrors = null;
+
+    var isValidParameter = function (parameter) {
+        var validParamters = [
+            'class',
+            'source',
+            'property',
+            'interval',
+            'group_by',
+            'key',
+            'value',
+            'from',
+            'to',
+            'percentile',
+            'user',
+            'filter',
+            'n'
+        ];
+
+        var hasDot = parameter.indexOf('.');
+
+        if (hasDot > -1) {
+            parameter = parameter.substring(0, hasDot);
+        }
+
+        if (validParamters.indexOf(parameter) === -1) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    if (!_.isEmpty(params)) {
+        for (var i in params) {
+            if (params.hasOwnProperty(i)) {
+                if (isValidParameter(i)) {
+                    queryStringParams.push(encodeURIComponent(i) + '=' + encodeURIComponent(params[i]));
+                } else {
+                    if (!paramErrors) {
+                        paramErrors = [];
+                    }
+                    paramErrors.push(i);
+                }
+            }
+        }
+        queryString += queryStringParams.join('&');
+    }
+
+    return { errors: paramErrors, queryString: queryString };
 };
 
 /**
