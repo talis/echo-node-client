@@ -73,6 +73,7 @@ var EchoClient = function(config){
 
      request.post(requestOptions, function(err, response, body){
          if(err){
+             this.error('[echoClient] addEvents error: ' + JSON.stringify(err));
              callback(err);
          } else{
              callback(null, body);
@@ -130,6 +131,7 @@ EchoClient.prototype.queryAnalytics = function(token, queryOperator, queryParams
 
     request.get(requestOptions, function(err, response, body) {
         if (err) {
+             this.error('[echoClient] queryAnalytics error: ' + JSON.stringify(err));
             callback(err);
         } else {
             callback(null, body);
@@ -149,7 +151,7 @@ EchoClient.prototype._queryStringParams = function(params) {
     var paramErrors = null;
 
     var isValidParameter = function (parameter) {
-        var validParamters = [
+        var validParameters = [
             'class',
             'source',
             'property',
@@ -171,7 +173,7 @@ EchoClient.prototype._queryStringParams = function(params) {
             parameter = parameter.substring(0, hasDot);
         }
 
-        if (validParamters.indexOf(parameter) === -1) {
+        if (validParameters.indexOf(parameter) === -1) {
             return false;
         } else {
             return true;
@@ -179,15 +181,15 @@ EchoClient.prototype._queryStringParams = function(params) {
     }
 
     if (!_.isEmpty(params)) {
-        for (var i in params) {
-            if (params.hasOwnProperty(i)) {
-                if (isValidParameter(i)) {
-                    queryStringParams.push(encodeURIComponent(i) + '=' + encodeURIComponent(params[i]));
+        for (var param in params) {
+            if (params.hasOwnProperty(param)) {
+                if (isValidParameter(param)) {
+                    queryStringParams.push(encodeURIComponent(param) + '=' + encodeURIComponent(params[param]));
                 } else {
                     if (!paramErrors) {
                         paramErrors = [];
                     }
-                    paramErrors.push(i);
+                    paramErrors.push([param]);
                 }
             }
         }
