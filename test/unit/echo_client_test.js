@@ -6,6 +6,7 @@ var echo = require('../../index.js');
 var sinon = require('sinon');
 var request = require('request');
 var sandbox;
+var endPoint = 'http://echo:3002';
 
 beforeEach(function () {
     sandbox = sinon.sandbox.create();
@@ -38,7 +39,7 @@ describe("Echo Node Client Test Suite", function(){
     describe("- add events test", function(){
         it("- should throw error if no persona token supplied", function(done){
             var echoClient = echo.createClient({
-                echo_endpoint:"http://echo:3002"
+                echo_endpoint: endPoint
             });
 
             var addEvents = function(){
@@ -50,7 +51,7 @@ describe("Echo Node Client Test Suite", function(){
         });
         it("- should throw error if no data supplied", function(done){
             var echoClient = echo.createClient({
-                echo_endpoint:"http://echo:3002"
+                echo_endpoint: endPoint
             });
 
             var addEvents = function(){
@@ -62,7 +63,7 @@ describe("Echo Node Client Test Suite", function(){
         });
         it("- should throw error if data.class not supplied", function(done){
             var echoClient = echo.createClient({
-                echo_endpoint:"http://echo:3002"
+                echo_endpoint: endPoint
             });
 
             var addEvents = function(){
@@ -74,7 +75,7 @@ describe("Echo Node Client Test Suite", function(){
         });
         it("- should throw error if data.source not supplied", function(done){
             var echoClient = echo.createClient({
-                echo_endpoint:"http://echo:3002"
+                echo_endpoint: endPoint
             });
 
             var addEvents = function(){
@@ -86,7 +87,7 @@ describe("Echo Node Client Test Suite", function(){
         });
         it("- add events should return an error if call to request returns an error", function(done){
             var echoClient = echo.createClient({
-                echo_endpoint:"http://echo:3002"
+                echo_endpoint: endPoint
             });
 
             var requestStub = sandbox.stub(request, 'post');
@@ -102,7 +103,7 @@ describe("Echo Node Client Test Suite", function(){
         });
         it("- add events should return an error if call to request has missing option.body", function(done){
             var echoClient = echo.createClient({
-                echo_endpoint:"http://echo:3002"
+                echo_endpoint: endPoint
             });
 
             var requestStub = sandbox.stub(request, 'post', function (options, callback) {
@@ -121,7 +122,7 @@ describe("Echo Node Client Test Suite", function(){
         });
         it("- add events should return an error if call to request has missing option.method", function(done){
             var echoClient = echo.createClient({
-                echo_endpoint:"http://echo:3002"
+                echo_endpoint: endPoint
             });
 
             var requestStub = sandbox.stub(request, 'post', function (options, callback) {
@@ -140,7 +141,7 @@ describe("Echo Node Client Test Suite", function(){
         });
         it("- add events should return an error if call to request has option.method != POST", function(done){
             var echoClient = echo.createClient({
-                echo_endpoint:"http://echo:3002"
+                echo_endpoint: endPoint
             });
 
             var requestStub = sandbox.stub(request, 'post', function (options, callback) {
@@ -159,7 +160,7 @@ describe("Echo Node Client Test Suite", function(){
         });
         it("- add events should return an error if call to request has missing option.json", function(done){
             var echoClient = echo.createClient({
-                echo_endpoint:"http://echo:3002"
+                echo_endpoint: endPoint
             });
 
             var requestStub = sandbox.stub(request, 'post', function (options, callback) {
@@ -178,7 +179,7 @@ describe("Echo Node Client Test Suite", function(){
         });
         it("- add events should return no errors if everything is successful", function(done){
             var echoClient = echo.createClient({
-                echo_endpoint:"http://echo:3002"
+                echo_endpoint: endPoint
             });
 
             var requestStub = sandbox.stub(request, 'post', function (options, callback) {
@@ -211,7 +212,7 @@ describe("Echo Node Client Test Suite", function(){
     describe('- query analytics tests', function(){        
         it('- should throw error if no persona token supplied', function(done){
             var echoClient = echo.createClient({
-                echo_endpoint: 'http://echo:3002'
+                echo_endpoint: endPoint
             });
 
             var queryAnalytics = function(){
@@ -223,7 +224,7 @@ describe("Echo Node Client Test Suite", function(){
         });
         it('- should throw error if no query operator supplied', function(done){
             var echoClient = echo.createClient({
-                echo_endpoint: 'http://echo:3002'
+                echo_endpoint: endPoint
             });
 
             var queryAnalytics = function(){
@@ -235,7 +236,7 @@ describe("Echo Node Client Test Suite", function(){
         });
         it('- should throw error if invalid query operator supplied', function(done){
             var echoClient = echo.createClient({
-                echo_endpoint: 'http://echo:3002'
+                echo_endpoint: endPoint
             });
 
             var queryAnalytics = function(){
@@ -247,7 +248,7 @@ describe("Echo Node Client Test Suite", function(){
         });
         it('- should throw error if no query parameters supplied', function(done){
             var echoClient = echo.createClient({
-                echo_endpoint: 'http://echo:3002'
+                echo_endpoint: endPoint
             });
 
             var queryAnalytics = function(){
@@ -259,7 +260,7 @@ describe("Echo Node Client Test Suite", function(){
         });
         it('- should throw error if invalid query parameters supplied', function(done){
             var echoClient = echo.createClient({
-                echo_endpoint: 'http://echo:3002'
+                echo_endpoint: endPoint
             });
 
             var params = {
@@ -275,7 +276,11 @@ describe("Echo Node Client Test Suite", function(){
         });
         it('- should not throw an error if valid query parameters supplied', function(done){
             var echoClient = echo.createClient({
-                echo_endpoint: 'http://echo:3002'
+                echo_endpoint: endPoint
+            });
+
+            var requestStub = sandbox.stub(request, 'get', function(options, callback) {
+                callback(null, {}, {});
             });
 
             var params = {
@@ -299,15 +304,23 @@ describe("Echo Node Client Test Suite", function(){
             };
 
             var queryAnalytics = function(){
-                return echoClient.queryAnalytics('secret', 'sum', params, false, function(err, result){});
+                return echoClient.queryAnalytics('secret', 'sum', params, false, function(err, result){
+                    var firstCall = requestStub.firstCall;
+                    (err === null).should.be.true;
+                    requestStub.callCount.should.equal(1);
+                    firstCall.args[0].method.should.equal('GET');
+                    firstCall.args[0].url.should.equal(endPoint + '/1/analytics/sum?class=testclass&source=testsources&property=testproperty&interval=testinterval&group_by=testgroupby&key=testkey&value=testvalue&from=testfrom&to=testto&percentile=testpercentile&user=testuser&user.include=includeuser&user.exclude=excludeuser&filter=testfilter&filter.test=testfilter&n=testn&n.something=something');
+                    firstCall.args[0].headers['cache-control'].should.equal('none');
+                });
             };
 
+            queryAnalytics();
+            
             queryAnalytics.should.not.throw('Invalid Analytics queryParams');
+
             done();
         });
-        it('- query analytics should return an error if call to request returns an error', function(done){
-            var endPoint = 'http://echo:3002';
-
+        it('- should return an error if call to request returns an error', function(done){
             var echoClient = echo.createClient({
                 echo_endpoint: endPoint
             });
@@ -332,9 +345,7 @@ describe("Echo Node Client Test Suite", function(){
             });
             done();
         });
-        it("- query analytics should return no errors if everything is successful", function(done){
-            var endPoint = 'http://echo:3002';
-
+        it("- should return no errors if everything is successful", function(done){
             var echoClient = echo.createClient({
                 echo_endpoint: endPoint
             });
@@ -395,9 +406,7 @@ describe("Echo Node Client Test Suite", function(){
                 done();
             });
         });
-        it("- query analytics should set cache header and return no errors if everything is successful", function(done){
-            var endPoint = 'http://echo:3002';
-
+        it("- should set cache header and return no errors if everything is successful", function(done){
             var echoClient = echo.createClient({
                 echo_endpoint: endPoint
             });

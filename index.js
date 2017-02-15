@@ -71,9 +71,11 @@ var EchoClient = function(config){
 
      this.debug(JSON.stringify(requestOptions));
 
+     var _this = this;
+
      request.post(requestOptions, function(err, response, body){
          if(err){
-             this.error('[echoClient] addEvents error: ' + JSON.stringify(err));
+             _this.error('[echoClient] addEvents error: ' + JSON.stringify(err));
              callback(err);
          } else{
              callback(null, body);
@@ -130,9 +132,11 @@ EchoClient.prototype.queryAnalytics = function(token, queryOperator, queryParams
 
     this.debug(JSON.stringify(requestOptions));
 
+    var _this = this;
+
     request.get(requestOptions, function(err, response, body) {
         if (err) {
-             this.error('[echoClient] queryAnalytics error: ' + JSON.stringify(err));
+            _this.error('[echoClient] queryAnalytics error: ' + JSON.stringify(err));
             callback(err);
         } else {
             callback(null, body);
