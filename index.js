@@ -69,6 +69,8 @@ var EchoClient = function(config){
          json: true
      };
 
+     this.debug(JSON.stringify(requestOptions));
+
      request.post(requestOptions, function(err, response, body){
          if(err){
              callback(err);
@@ -76,8 +78,6 @@ var EchoClient = function(config){
              callback(null, body);
          }
      });
-
-     this.debug(JSON.stringify(requestOptions));
  };
 
 /**
@@ -126,6 +126,8 @@ EchoClient.prototype.queryAnalytics = function(token, queryOperator, queryParams
         requestOptions.headers['cache-control'] = 'none';
     }
 
+    this.debug(JSON.stringify(requestOptions));
+
     request.get(requestOptions, function(err, response, body) {
         if (err) {
             callback(err);
@@ -133,8 +135,6 @@ EchoClient.prototype.queryAnalytics = function(token, queryOperator, queryParams
             callback(null, body);
         }
     });
-
-    this.debug(JSON.stringify(requestOptions));
 };
 
 /**
