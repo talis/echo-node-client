@@ -3,10 +3,17 @@
 var should = require('should');
 var assert = require('assert');
 var echo = require('../../index.js');
-var rewire = require('rewire');
 var sinon = require('sinon');
 var request = require('request');
 var sandbox;
+
+beforeEach(function () {
+    sandbox = sinon.sandbox.create();
+});
+
+afterEach(function () {
+    sandbox.restore();
+});
 
 describe("Echo Node Client Test Suite", function(){
     describe("- Constructor tests", function(){
@@ -78,19 +85,12 @@ describe("Echo Node Client Test Suite", function(){
             done();
         });
         it("- add events should return an error if call to request returns an error", function(done){
-            var echo = rewire("../../index.js");
-
             var echoClient = echo.createClient({
                 echo_endpoint:"http://echo:3002"
             });
-            var requestStub = {
-                post:function(options, callback){
-                    var error = new Error('Error communicating with Echo');
-                    callback(error);
-                }
-            };
 
-            echo.__set__("request", requestStub);
+            var requestStub = sandbox.stub(request, 'post');
+            requestStub.yields(new Error('Error communicating with Echo'));
 
             echoClient.addEvents('secret', {class:'class', source:'source'}, function(err, result){
 
@@ -101,23 +101,18 @@ describe("Echo Node Client Test Suite", function(){
             done();
         });
         it("- add events should return an error if call to request has missing option.body", function(done){
-            var echo = rewire("../../index.js");
-
             var echoClient = echo.createClient({
                 echo_endpoint:"http://echo:3002"
             });
-            var requestStub = {
-                post:function(options, callback){
-                    if(!options.body){
-                        var error = new Error('Missing field: options.body');
-                        callback(error);
-                    } else{
-                        callback(null);
-                    }
-                }
-            };
 
-            echo.__set__("request", requestStub);
+            var requestStub = sandbox.stub(request, 'post', function (options, callback) {
+                if(!options.body){
+                    var error = new Error('Missing field: options.body');
+                    callback(error);
+                } else{
+                    callback(null);
+                }                
+            });
 
             echoClient.addEvents('secret', {class:'class', source:'source'}, function(err){
                 (err === null).should.be.true;
@@ -125,23 +120,18 @@ describe("Echo Node Client Test Suite", function(){
             done();
         });
         it("- add events should return an error if call to request has missing option.method", function(done){
-            var echo = rewire("../../index.js");
-
             var echoClient = echo.createClient({
                 echo_endpoint:"http://echo:3002"
             });
-            var requestStub = {
-                post:function(options, callback){
-                    if(!options.method){
-                        var error = new Error('Missing field: options.method');
-                        callback(error);
-                    } else{
-                        callback(null);
-                    }
-                }
-            };
 
-            echo.__set__("request", requestStub);
+            var requestStub = sandbox.stub(request, 'post', function (options, callback) {
+                if(!options.method){
+                    var error = new Error('Missing field: options.method');
+                    callback(error);
+                } else{
+                    callback(null);
+                }
+            });
 
             echoClient.addEvents('secret', {class:'class', source:'source'}, function(err){
                 (err === null).should.be.true;
@@ -149,23 +139,18 @@ describe("Echo Node Client Test Suite", function(){
             done();
         });
         it("- add events should return an error if call to request has option.method != POST", function(done){
-            var echo = rewire("../../index.js");
-
             var echoClient = echo.createClient({
                 echo_endpoint:"http://echo:3002"
             });
-            var requestStub = {
-                post:function(options, callback){
-                    if(options.method !== 'POST'){
-                        var error = new Error('Invalid field: options.method');
-                        callback(error);
-                    } else{
-                        callback(null);
-                    }
-                }
-            };
 
-            echo.__set__("request", requestStub);
+            var requestStub = sandbox.stub(request, 'post', function (options, callback) {
+                if(options.method !== 'POST'){
+                    var error = new Error('Invalid field: options.method');
+                    callback(error);
+                } else{
+                    callback(null);
+                }
+            });
 
             echoClient.addEvents('secret', {class:'class', source:'source'}, function(err){
                 (err === null).should.be.true;
@@ -173,23 +158,18 @@ describe("Echo Node Client Test Suite", function(){
             done();
         });
         it("- add events should return an error if call to request has missing option.json", function(done){
-            var echo = rewire("../../index.js");
-
             var echoClient = echo.createClient({
                 echo_endpoint:"http://echo:3002"
             });
-            var requestStub = {
-                post:function(options, callback){
-                    if(!options.json){
-                        var error = new Error('Missing field: options.json');
-                        callback(error);
-                    } else{
-                        callback(null);
-                    }
-                }
-            };
 
-            echo.__set__("request", requestStub);
+            var requestStub = sandbox.stub(request, 'post', function (options, callback) {
+                if(!options.json){
+                    var error = new Error('Missing field: options.json');
+                    callback(error);
+                } else{
+                    callback(null);
+                }
+            });
 
             echoClient.addEvents('secret', {class:'class', source:'source'}, function(err){
                 (err === null).should.be.true;
@@ -197,15 +177,11 @@ describe("Echo Node Client Test Suite", function(){
             done();
         });
         it("- add events should return no errors if everything is successful", function(done){
-
-            var echo = rewire("../../index.js");
-
             var echoClient = echo.createClient({
                 echo_endpoint:"http://echo:3002"
             });
 
-            var requestMock = {};
-            requestMock.post = function(options, callback){
+            var requestStub = sandbox.stub(request, 'post', function (options, callback) {
                 callback(null, {}, {
                     "class": "page.views",
                     "timestamp": 1324524509,
@@ -215,9 +191,7 @@ describe("Echo Node Client Test Suite", function(){
                         "url" : "https://foo.bar/baz.html"
                     }
                 });
-            };
-
-            echo.__set__("request", requestMock);
+            });
 
             echoClient.addEvents('secret', {class:'class', source:'source'}, function(err, result){
 
@@ -235,14 +209,6 @@ describe("Echo Node Client Test Suite", function(){
     });
 
     describe('- query analytics tests', function(){        
-        beforeEach(function () {
-            sandbox = sinon.sandbox.create();
-        });
-
-        afterEach(function () {
-            sandbox.restore();
-        });
-
         it('- should throw error if no persona token supplied', function(done){
             var echoClient = echo.createClient({
                 echo_endpoint: 'http://echo:3002'
@@ -346,8 +312,9 @@ describe("Echo Node Client Test Suite", function(){
                 echo_endpoint: endPoint
             });
 
-            var requestStub = sandbox.stub(request, 'get');
-            requestStub.yields(new Error('Error communicating with Echo'));
+            var requestStub = sandbox.stub(request, 'get', function(options, callback) {
+                callback(new Error('Error communicating with Echo'));
+            });
 
             var params = {
                 class: 'testclass'
@@ -372,8 +339,8 @@ describe("Echo Node Client Test Suite", function(){
                 echo_endpoint: endPoint
             });
 
-            var requestStub = sandbox.stub(request, 'get');
-            requestStub.yields(null, {}, {
+            var requestStub = sandbox.stub(request, 'get', function(options, callback) {
+                callback(null, {}, {
                       "head": {
                         "type": "sum",
                         "class": "player.timer.2",
@@ -396,8 +363,9 @@ describe("Echo Node Client Test Suite", function(){
                         }
                       ]
                     }
-            );
-
+                );
+            });
+    
             var params = {
                 class: 'player.timer.2',
                 property: 'interval_with_decay',
@@ -434,8 +402,8 @@ describe("Echo Node Client Test Suite", function(){
                 echo_endpoint: endPoint
             });
 
-            var requestStub = sandbox.stub(request, 'get');
-            requestStub.yields(null, {}, {
+            var requestStub = sandbox.stub(request, 'get', function(options, callback) {
+                callback(null, {}, {
                       "head": {
                         "type": "sum",
                         "class": "player.timer.2",
@@ -458,7 +426,8 @@ describe("Echo Node Client Test Suite", function(){
                         }
                       ]
                     }
-            );
+                );
+            });
 
             var params = {
                 class: 'player.timer.2',
