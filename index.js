@@ -139,7 +139,7 @@ EchoClient.prototype.queryAnalytics = function(token, queryOperator, queryParams
             _this.error('[echoClient] queryAnalytics error: ' + JSON.stringify(err));
             callback(err);
         } else {
-            callback(null, body);
+            _this._parseJSON(body, callback);
         }
     });
 };
@@ -224,6 +224,24 @@ EchoClient.prototype._log = function (severity, message) {
         }
     } else {
         console.log(severity + ": [echo_node_client] " + message);
+    }
+};
+
+/**
+ * Parse JSON safely
+ * @param {object} body
+ * @callback callback
+ * @private
+ */
+EchoClient.prototype._parseJSON = function(body, callback) {
+    var _this = this;
+    try{
+        var jsonBody = JSON.parse(body);
+        callback(null, jsonBody);
+    } catch(e){
+        var errText = 'Error parsing returned JSON: ' + body;
+        _this.error(errText);
+        callback(errText);
     }
 };
 
