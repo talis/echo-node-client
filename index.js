@@ -139,7 +139,7 @@ EchoClient.prototype.queryAnalytics = function(token, queryOperator, queryParams
             _this.error('[echoClient] queryAnalytics error: ' + JSON.stringify(err));
             callback(err);
         } else {
-            _this._parseJSON(response, body, callback);
+            _this._parseJSON(body, callback);
         }
     });
 };
@@ -229,12 +229,11 @@ EchoClient.prototype._log = function (severity, message) {
 
 /**
  * Parse JSON safely
- * @param {object} response
  * @param {object} body
  * @callback callback
  * @private
  */
-EchoClient.prototype._parseJSON = function(response, body, callback) {
+EchoClient.prototype._parseJSON = function(body, callback) {
     var _this = this;
     try{
         var jsonBody = JSON.parse(body);
