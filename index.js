@@ -1,10 +1,11 @@
 'use strict';
 
 var request = require('request');
+var _ = require('lodash');
 
 // log severities
-var DEBUG = "debug";
-var ERROR = "error";
+var DEBUG = 'debug';
+var ERROR = 'error';
 
 /**
  * Create an Echo client
@@ -37,41 +38,167 @@ var EchoClient = function(config){
  * @param {object} data.props Other properties associated with the event
  * @callback callback
  */
-EchoClient.prototype.addEvents = function(token, data, callback){
-    if(!token){
+ EchoClient.prototype.addEvents = function(token, data, callback){
+     if(!token){
+         throw new Error('Missing Persona token');
+     }
+
+     if(!data){
+         throw new Error('Missing data');
+     }
+
+     // multiple events can be written by posting an array
+     // if not an array, check data looks ok
+     if (!(data instanceof Array)) {
+         if(!data.class){
+             throw new Error('Missing field data.class');
+         }
+         if(!data.source){
+             throw new Error('Missing field data.source');
+         }
+     }
+
+     var requestOptions = {
+         url: this.config.echo_endpoint + '/1/events',
+         headers: {
+             'Accept': 'application/json',
+             'Authorization': 'Bearer ' + token
+         },
+         body: data,
+         method: 'POST',
+         json: true
+     };
+
+     this.debug(JSON.stringify(requestOptions));
+
+     var _this = this;
+
+     request.post(requestOptions, function(err, response, body){
+         if(err){
+             _this.error('[echoClient] addEvents error: ' + JSON.stringify(err));
+             callback(err);
+         } else{
+             callback(null, body);
+         }
+     });
+ };
+
+/**
+ * Query analytics using a passed operator and parameters
+ * @param  {string}   token             Persona token
+ * @param  {string}   queryOperator     Query operator (hits, average, sum, max or funnel)
+ * @param  {object}   queryParams       Hash of parameters to add to the query
+ * @param  {boolean}  useCache          Indicates if cache should be used or not
+ * @callback callback
+ */
+EchoClient.prototype.queryAnalytics = function(token, queryOperator, queryParams, useCache, callback) {
+    if (!token) {
         throw new Error('Missing Persona token');
     }
-    if(!data){
-        throw new Error('Missing data');
+
+    if (!queryOperator) {
+        throw new Error('Missing Analytics queryOperator');
     }
-    if(!data.class){
-        throw new Error('Missing field data.class');
+
+    var validOperators = ['hits', 'average', 'sum', 'max', 'funnel'];
+
+    if (validOperators.indexOf(queryOperator) === -1) {
+        throw new Error('Invalid Analytics queryOperator');
     }
-    if(!data.source){
-        throw new Error('Missing field data.source');
+
+    if (!queryParams) {
+        throw new Error('Missing Analytics queryParams');
+    }
+
+    var constructQueryStringResponse = this._queryStringParams(queryParams);
+
+    if (!_.isEmpty(constructQueryStringResponse.errors)) {
+        this.error('One or more invalid analytics queryParams where supplied: ' + constructQueryStringResponse.errors.join());
+        throw new Error('Invalid Analytics queryParams');
     }
 
     var requestOptions = {
-        url: this.config.echo_endpoint+'/1/events',
+        url: this.config.echo_endpoint + '/1/analytics/' + queryOperator + '?' + constructQueryStringResponse.queryString,
+        method: 'GET',
         headers: {
-            'Accept': 'application/json',
-            'Authorization':'Bearer '+token
-        },
-        body:data,
-        method:'POST',
-        json:true
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+        }
     };
 
-    request.post(requestOptions, function(err, response, body){
-        if(err){
-            callback(err);
-        } else{
-            callback(null, body);
-        }
-    });
+    if (useCache === false) {
+        requestOptions.headers['cache-control'] = 'none';
+    }
 
     this.debug(JSON.stringify(requestOptions));
 
+    var _this = this;
+
+    request.get(requestOptions, function(err, response, body) {
+        if (err) {
+            _this.error('[echoClient] queryAnalytics error: ' + JSON.stringify(err));
+            callback(err);
+        } else {
+            callback(null, body);
+        }
+    });
+};
+
+/**
+ * Build up a query string
+ * @param {object} params
+ * @returns {string}
+ * @private
+ */
+EchoClient.prototype._queryStringParams = function(params) {
+    var queryString = '';
+    var queryStringParams = [];
+    var paramErrors = [];
+
+    var isValidParameter = function (parameter) {
+        var validParameters = [
+            'class',
+            'source',
+            'property',
+            'interval',
+            'group_by',
+            'key',
+            'value',
+            'from',
+            'to',
+            'percentile',
+            'user',
+            'filter',
+            'n'
+        ];
+
+        var hasDot = parameter.indexOf('.');
+
+        if (hasDot > -1) {
+            parameter = parameter.substring(0, hasDot);
+        }
+
+        if (validParameters.indexOf(parameter) === -1) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    if (!_.isEmpty(params)) {
+        for (var param in params) {
+            if (params.hasOwnProperty(param)) {
+                if (isValidParameter(param)) {
+                    queryStringParams.push(encodeURIComponent(param) + '=' + encodeURIComponent(params[param]));
+                } else {
+                    paramErrors.push([param]);
+                }
+            }
+        }
+        queryString += queryStringParams.join('&');
+    }
+
+    return { errors: paramErrors, queryString: queryString };
 };
 
 /**
