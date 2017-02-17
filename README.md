@@ -46,6 +46,54 @@ echoClient.addEvents(token, {
 });
 ```
 
+### Query analytics
+For constructing graphs or other representations of analytics, use ```queryAnalytics```
+
+```queryAnalytics = function(token, queryOperator, queryParams, useCache, callback)```
+
+```queryOperator``` can be: hits, average, sum, max or funnel
+```queryParams``` can be any parameters needed to support the query, selected from possible options such as:
+
+- class
+- source
+- property
+- interval
+- group_by
+- key
+- value
+- from
+- to
+- percentile
+- user
+- filter
+- n
+
+Example:
+
+```javascript
+var token = req.personaClient.getToken(req);
+
+var queryParams = {
+    class: 'player.timer.2',
+    to: dateTo,
+    from: dateFrom,
+    'n.index': '0:1:3',
+    group_by: 'n.index',
+    property: 'interval_with_decay',
+    'filter.module_id': module_id,
+    'filter.resource_id': resource_id,
+    'user.include': user_id
+};
+
+echoClient.queryAnalytics(token, 'sum', queryParams, true, function (echoErr, echoData) {
+    if (err){
+        // Handle errors here...
+    } else{
+        // Do some other stuff here...
+    }    
+}
+```
+
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
 
