@@ -112,7 +112,7 @@ EchoClient.prototype.queryAnalytics = function(token, queryOperator, queryParams
 
     var constructQueryStringResponse = this._queryStringParams(queryParams);
 
-    if (constructQueryStringResponse.errors) {
+    if (!_.isEmpty(constructQueryStringResponse.errors)) {
         this.error('One or more invalid analytics queryParams where supplied: ' + constructQueryStringResponse.errors.join());
         throw new Error('Invalid Analytics queryParams');
     }
@@ -153,7 +153,7 @@ EchoClient.prototype.queryAnalytics = function(token, queryOperator, queryParams
 EchoClient.prototype._queryStringParams = function(params) {
     var queryString = '';
     var queryStringParams = [];
-    var paramErrors = null;
+    var paramErrors = [];
 
     var isValidParameter = function (parameter) {
         var validParameters = [
@@ -191,9 +191,6 @@ EchoClient.prototype._queryStringParams = function(params) {
                 if (isValidParameter(param)) {
                     queryStringParams.push(encodeURIComponent(param) + '=' + encodeURIComponent(params[param]));
                 } else {
-                    if (!paramErrors) {
-                        paramErrors = [];
-                    }
                     paramErrors.push([param]);
                 }
             }
