@@ -280,7 +280,8 @@ describe("Echo Node Client Test Suite", function(){
             });
 
             var requestStub = sandbox.stub(request, 'get', function(options, callback) {
-                callback(null, {}, {});
+                var data = "{\"head\": {\"type\": \"sum\",\"class\": \"player.timer.2\",\"property\": \"interval_with_decay\",\"group_by\": \"user\",\"filter\": {\"module_id\": \"5847ed0ef81ebd1f1b000001\",\"resource_id\": \"5899a87fd42410f2c9000001\"},\"from\": \"2016-08-29T00:00:00\",\"to\": \"2017-05-18T00:00:00\",\"count\": 2},\"results\": [{\"user\": \"8av3Jaj__vC9v9VIY_P-1w\",\"interval_with_decay\": 182920},{\"user\": \"d17T05nNTjG50sAp_R3RvQ\",\"interval_with_decay\": 21315}]}";
+                callback(null, {}, data);
             });
 
             var params = {
@@ -351,37 +352,15 @@ describe("Echo Node Client Test Suite", function(){
             });
 
             var requestStub = sandbox.stub(request, 'get', function(options, callback) {
-                callback(null, {}, {
-                      "head": {
-                        "type": "sum",
-                        "class": "player.timer.2",
-                        "property": "interval_with_decay",
-                        "group_by": "user",
-                        "filter": {
-                          "module_id": "589c8c0e8bbcb8ae13000001"
-                        },
-                        "user": {
-                          "exclude": "qVyfsQhlMY0T2_Bl7eotrg"
-                        },
-                        "from": "2017-02-01T00:00:00",
-                        "to": "2017-02-13T00:00:00",
-                        "count": 1
-                      },
-                      "results": [
-                        {
-                          "user": "MPWubWyXy84sHl8SY5ub4A",
-                          "interval_with_decay": 209726
-                        }
-                      ]
-                    }
-                );
+                var data = "{\"head\": {\"type\": \"sum\",\"class\": \"player.timer.2\",\"property\": \"interval_with_decay\",\"group_by\": \"user\",\"filter\": {\"module_id\": \"5847ed0ef81ebd1f1b000001\"},\"user\": {\"exclude\": \"qVyfsQhlMY0T2_Bl7eotrg\"},\"from\": \"2017-02-01T00:00:00\",\"to\": \"2017-02-13T00:00:00\",\"count\": 2},\"results\": [{\"user\": \"8av3Jaj__vC9v9VIY_P-1w\",\"interval_with_decay\": 182920},{\"user\": \"d17T05nNTjG50sAp_R3RvQ\",\"interval_with_decay\": 21315}]}";
+                callback(null, {}, data);
             });
     
             var params = {
                 class: 'player.timer.2',
                 property: 'interval_with_decay',
                 group_by: 'user',
-                'filter.module_id': '589c8c0e8bbcb8ae13000001',
+                'filter.module_id': '5847ed0ef81ebd1f1b000001',
                 'user.exclude': 'qVyfsQhlMY0T2_Bl7eotrg',
                 from: '2017-02-01T00:00:00',
                 to: '2017-02-13T00:00:00'
@@ -394,8 +373,8 @@ describe("Echo Node Client Test Suite", function(){
                 firstCall.args[0].method.should.equal('GET');
                 firstCall.args[0].headers['cache-control'].should.equal('none');
                 (result.results instanceof Array).should.be.true;
-                result.results.length.should.equal(1);
-                result.results[0].user.should.equal('MPWubWyXy84sHl8SY5ub4A');
+                result.results.length.should.equal(2);
+                result.results[0].user.should.equal('8av3Jaj__vC9v9VIY_P-1w');
                 result.head.class.should.equal(params.class);
                 result.head.property.should.equal(params.property);
                 result.head.group_by.should.equal(params.group_by);
@@ -412,37 +391,15 @@ describe("Echo Node Client Test Suite", function(){
             });
 
             var requestStub = sandbox.stub(request, 'get', function(options, callback) {
-                callback(null, {}, {
-                      "head": {
-                        "type": "sum",
-                        "class": "player.timer.2",
-                        "property": "interval_with_decay",
-                        "group_by": "user",
-                        "filter": {
-                          "module_id": "589c8c0e8bbcb8ae13000001"
-                        },
-                        "user": {
-                          "exclude": "qVyfsQhlMY0T2_Bl7eotrg"
-                        },
-                        "from": "2017-02-01T00:00:00",
-                        "to": "2017-02-13T00:00:00",
-                        "count": 1
-                      },
-                      "results": [
-                        {
-                          "user": "MPWubWyXy84sHl8SY5ub4A",
-                          "interval_with_decay": 209726
-                        }
-                      ]
-                    }
-                );
+                var data = "{\"head\": {\"type\": \"sum\",\"class\": \"player.timer.2\",\"property\": \"interval_with_decay\",\"group_by\": \"user\",\"filter\": {\"module_id\": \"5847ed0ef81ebd1f1b000001\"},\"user\": {\"exclude\": \"qVyfsQhlMY0T2_Bl7eotrg\"},\"from\": \"2017-02-01T00:00:00\",\"to\": \"2017-02-13T00:00:00\",\"count\": 2},\"results\": [{\"user\": \"8av3Jaj__vC9v9VIY_P-1w\",\"interval_with_decay\": 182920},{\"user\": \"d17T05nNTjG50sAp_R3RvQ\",\"interval_with_decay\": 21315}]}";
+                callback(null, {}, data);
             });
 
             var params = {
                 class: 'player.timer.2',
                 property: 'interval_with_decay',
                 group_by: 'user',
-                'filter.module_id': '589c8c0e8bbcb8ae13000001',
+                'filter.module_id': '5847ed0ef81ebd1f1b000001',
                 'user.exclude': 'qVyfsQhlMY0T2_Bl7eotrg',
                 from: '2017-02-01T00:00:00',
                 to: '2017-02-13T00:00:00'
@@ -455,8 +412,8 @@ describe("Echo Node Client Test Suite", function(){
                 firstCall.args[0].method.should.equal('GET');
                 firstCall.args[0].headers.should.not.contain('cache-control');
                 (result.results instanceof Array).should.be.true;
-                result.results.length.should.equal(1);
-                result.results[0].user.should.equal('MPWubWyXy84sHl8SY5ub4A');
+                result.results.length.should.equal(2);
+                result.results[0].user.should.equal('8av3Jaj__vC9v9VIY_P-1w');
                 result.head.class.should.equal(params.class);
                 result.head.property.should.equal(params.property);
                 result.head.group_by.should.equal(params.group_by);
@@ -464,6 +421,38 @@ describe("Echo Node Client Test Suite", function(){
                 result.head.user.exclude.should.equal(params['user.exclude']);
                 result.head.from.should.equal(params.from);
                 result.head.to.should.equal(params.to);
+                done();
+            });
+        });
+        it("- should return parse error if returned JSON contains errors", function(done){
+            var echoClient = echo.createClient({
+                echo_endpoint: endPoint
+            });
+
+            var data = "<html><head>Test</head></html>";
+
+            var requestStub = sandbox.stub(request, 'get', function(options, callback) {
+                callback(null, {}, data);
+            });
+    
+            var params = {
+                class: 'player.timer.2',
+                property: 'interval_with_decay',
+                group_by: 'user',
+                'filter.module_id': '5847ed0ef81ebd1f1b000001',
+                'user.exclude': 'qVyfsQhlMY0T2_Bl7eotrg',
+                from: '2017-02-01T00:00:00',
+                to: '2017-02-13T00:00:00'
+            };
+
+            echoClient.queryAnalytics('secret', 'sum', params, false, function(err, result){
+                var firstCall = requestStub.firstCall;
+                (err === null).should.be.false;
+                (typeof result).should.equal('undefined');
+                requestStub.callCount.should.equal(1);
+                firstCall.args[0].method.should.equal('GET');
+                firstCall.args[0].headers['cache-control'].should.equal('none');
+                err.should.equal('Error parsing returned JSON: ' + data);
                 done();
             });
         });
