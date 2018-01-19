@@ -23,20 +23,6 @@ var validParameters = [
   'n'
 ];
 
-/**
- * Parse JSON safely
- * @param {object} body
- * @callback callback
- */
-function parseJSON(body, callback) {
-  try {
-    var jsonBody = JSON.parse(body);
-    callback(null, jsonBody);
-  } catch (e) {
-    var errText = 'Error parsing returned JSON';
-    callback(errText);
-  }
-}
 
 function isValidParameter(parameter) {
   var hasDot = parameter.indexOf('.');
@@ -111,6 +97,22 @@ function Client() {
   }
 
   /**
+ * Parse JSON safely
+ * @param {object} body
+ * @callback callback
+ */
+  function parseJSON(body, callback) {
+    try {
+      var jsonBody = JSON.parse(body);
+      callback(null, jsonBody);
+    } catch (e) {
+      var errText = 'Error parsing returned JSON';
+      error(errText);
+      callback(errText);
+    }
+  }
+
+  /**
      * Create an Echo client
      *
      * @param {object} config Echo Client config
@@ -125,7 +127,7 @@ function Client() {
 
     Object.keys(requiredParams).forEach(function eachKey(index) {
       var key = requiredParams[index];
-      if (this.config[key] === undefined) {
+      if (config[key] === undefined) {
         throw new Error('Missing Echo config: ' + key);
       }
     });
@@ -163,7 +165,7 @@ function Client() {
     }
 
     var requestOptions = {
-      url: this.config.echo_endpoint + '/1/events',
+      url: config.echo_endpoint + '/1/events',
       headers: {
         Accept: 'application/json',
         Authorization: 'Bearer ' + token
@@ -176,7 +178,11 @@ function Client() {
     debug('request objections', requestOptions);
 
     request.post(requestOptions, function onResp(err, response, body) {
-      if (err || response.statusCode / 100 !== 2) {
+      var statusCode = response && response.statusCode
+        ? response.statusCode
+        : 0;
+
+      if (err || statusCode / 100 !== 2) {
         error('[echoClient] addEvents error', { err: err, body: body });
         callback(err);
       } else {
@@ -230,7 +236,7 @@ function Client() {
     }
 
     var requestOptions = {
-      url: this.config.echo_endpoint + '/1/analytics/' + queryOperator + '?' + constructQueryStringResponse.queryString,
+      url: config.echo_endpoint + '/1/analytics/' + queryOperator + '?' + constructQueryStringResponse.queryString,
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -245,17 +251,15 @@ function Client() {
     debug('request options', requestOptions);
 
     request.get(requestOptions, function onResp(err, response, rawBody) {
-      if (err || response.statusCode / 100 !== 2) {
+      var status = response && response.statusCode
+        ? response.statusCode
+        : 0;
+
+      if (err || status / 100 !== 2) {
         error('[echoClient] queryAnalytics error', { err: err, body: rawBody });
         callback(err || response);
       } else {
-        parseJSON(rawBody, function parsed(parseErr, body) {
-          if (err) {
-            error(parseErr);
-          }
-
-          callback(err, body);
-        });
+        parseJSON(rawBody, callback);
       }
     });
   };
