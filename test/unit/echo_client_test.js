@@ -460,5 +460,68 @@ describe("Echo Node Client Test Suite", function(){
                 done();
             });
         });
-    });
+        it("- should return error if non http 2xx reply", function(done){
+            var echoClient = echo.createClient({
+                echo_endpoint: endPoint
+            });
+
+            var data = "[]";
+
+            var requestStub = sandbox.stub(request, 'get', function(options, callback) {
+                callback(null, {statusCode: 400}, data);
+            });
+
+            var params = {
+                class: 'player.timer.2',
+                property: 'interval_with_decay',
+                group_by: 'user',
+                'filter.module_id': '5847ed0ef81ebd1f1b000001',
+                'user.exclude': 'qVyfsQhlMY0T2_Bl7eotrg',
+                from: '2017-02-01T00:00:00',
+                to: '2017-02-13T00:00:00'
+            };
+
+            echoClient.queryAnalytics('secret', 'sum', params, false, function(err, result){
+                var firstCall = requestStub.firstCall;
+                (err === null).should.be.false;
+                (typeof result).should.equal('undefined');
+                requestStub.callCount.should.equal(1);
+                firstCall.args[0].method.should.equal('GET');
+                firstCall.args[0].headers['cache-control'].should.equal('none');
+                err.should.equal('invalid status code: 400');
+                done();
+            });
+        });
+        it("- should return error if non http 2xx reply with invalid parse", function(done){
+            var echoClient = echo.createClient({
+                echo_endpoint: endPoint
+            });
+
+            var data = "this is invalid";
+
+            var requestStub = sandbox.stub(request, 'get', function(options, callback) {
+                callback(null, {statusCode: 400}, data);
+            });
+
+            var params = {
+                class: 'player.timer.2',
+                property: 'interval_with_decay',
+                group_by: 'user',
+                'filter.module_id': '5847ed0ef81ebd1f1b000001',
+                'user.exclude': 'qVyfsQhlMY0T2_Bl7eotrg',
+                from: '2017-02-01T00:00:00',
+                to: '2017-02-13T00:00:00'
+            };
+
+            echoClient.queryAnalytics('secret', 'sum', params, false, function(err, result){
+                var firstCall = requestStub.firstCall;
+                (err === null).should.be.false;
+                (typeof result).should.equal('undefined');
+                requestStub.callCount.should.equal(1);
+                firstCall.args[0].method.should.equal('GET');
+                firstCall.args[0].headers['cache-control'].should.equal('none');
+                err.should.equal('invalid status code: 400');
+                done();
+            });
+        });    });
 });

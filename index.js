@@ -257,7 +257,7 @@ function Client() {
 
       if (err || parseInt(status / 100) !== 2) {
         error('[echoClient] queryAnalytics error', { err: err, body: rawBody });
-        callback(err || response);
+        callback(err || 'invalid status code: ' + status);
       } else {
         parseJSON(rawBody, callback);
       }
