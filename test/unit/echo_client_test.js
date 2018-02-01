@@ -94,12 +94,11 @@ describe("Echo Node Client Test Suite", function(){
             requestStub.yields(new Error('Error communicating with Echo'));
 
             echoClient.addEvents('secret', {class:'class', source:'source'}, function(err, result){
-
                 (err === null).should.be.false;
                 err.message.should.equal('Error communicating with Echo');
                 (typeof result).should.equal('undefined');
+                done();
             });
-            done();
         });
         it("- add events should return an error if call to request has missing option.body", function(done){
             var echoClient = echo.createClient({
@@ -117,8 +116,8 @@ describe("Echo Node Client Test Suite", function(){
 
             echoClient.addEvents('secret', {class:'class', source:'source'}, function(err){
                 (err === null).should.be.true;
+                done();
             });
-            done();
         });
         it("- add events should return an error if call to request has missing option.method", function(done){
             var echoClient = echo.createClient({
@@ -136,8 +135,8 @@ describe("Echo Node Client Test Suite", function(){
 
             echoClient.addEvents('secret', {class:'class', source:'source'}, function(err){
                 (err === null).should.be.true;
+                done();
             });
-            done();
         });
         it("- add events should return an error if call to request has option.method != POST", function(done){
             var echoClient = echo.createClient({
@@ -155,8 +154,8 @@ describe("Echo Node Client Test Suite", function(){
 
             echoClient.addEvents('secret', {class:'class', source:'source'}, function(err){
                 (err === null).should.be.true;
+                done();
             });
-            done();
         });
         it("- add events should return an error if call to request has missing option.json", function(done){
             var echoClient = echo.createClient({
@@ -174,8 +173,8 @@ describe("Echo Node Client Test Suite", function(){
 
             echoClient.addEvents('secret', {class:'class', source:'source'}, function(err){
                 (err === null).should.be.true;
+                done();
             });
-            done();
         });
         it("- add events should return no errors if everything is successful", function(done){
             var echoClient = echo.createClient({
@@ -347,8 +346,8 @@ describe("Echo Node Client Test Suite", function(){
                 firstCall.args[0].headers['cache-control'].should.equal('none');
                 err.message.should.equal('Error communicating with Echo');
                 (typeof result).should.equal('undefined');
+                done();
             });
-            done();
         });
         it("- should return no errors if everything is successful", function(done){
             var echoClient = echo.createClient({
@@ -488,7 +487,7 @@ describe("Echo Node Client Test Suite", function(){
                 requestStub.callCount.should.equal(1);
                 firstCall.args[0].method.should.equal('GET');
                 firstCall.args[0].headers['cache-control'].should.equal('none');
-                err.should.equal('invalid status code: 400');
+                err.should.equal('error response status code: 400');
                 done();
             });
         });
@@ -520,7 +519,7 @@ describe("Echo Node Client Test Suite", function(){
                 requestStub.callCount.should.equal(1);
                 firstCall.args[0].method.should.equal('GET');
                 firstCall.args[0].headers['cache-control'].should.equal('none');
-                err.should.equal('invalid status code: 400');
+                err.should.equal('error response status code: 400');
                 done();
             });
         });    });
