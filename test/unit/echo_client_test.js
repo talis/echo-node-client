@@ -94,12 +94,11 @@ describe("Echo Node Client Test Suite", function(){
             requestStub.yields(new Error('Error communicating with Echo'));
 
             echoClient.addEvents('secret', {class:'class', source:'source'}, function(err, result){
-
                 (err === null).should.be.false;
                 err.message.should.equal('Error communicating with Echo');
                 (typeof result).should.equal('undefined');
+                done();
             });
-            done();
         });
         it("- add events should return an error if call to request has missing option.body", function(done){
             var echoClient = echo.createClient({
@@ -112,13 +111,13 @@ describe("Echo Node Client Test Suite", function(){
                     callback(error);
                 } else{
                     callback(null);
-                }                
+                }
             });
 
             echoClient.addEvents('secret', {class:'class', source:'source'}, function(err){
-                (err === null).should.be.true;
+                (err === null).should.be.false;
+                done();
             });
-            done();
         });
         it("- add events should return an error if call to request has missing option.method", function(done){
             var echoClient = echo.createClient({
@@ -135,9 +134,9 @@ describe("Echo Node Client Test Suite", function(){
             });
 
             echoClient.addEvents('secret', {class:'class', source:'source'}, function(err){
-                (err === null).should.be.true;
+                (err === null).should.be.false;
+                done();
             });
-            done();
         });
         it("- add events should return an error if call to request has option.method != POST", function(done){
             var echoClient = echo.createClient({
@@ -154,9 +153,9 @@ describe("Echo Node Client Test Suite", function(){
             });
 
             echoClient.addEvents('secret', {class:'class', source:'source'}, function(err){
-                (err === null).should.be.true;
+                (err === null).should.be.false;
+                done();
             });
-            done();
         });
         it("- add events should return an error if call to request has missing option.json", function(done){
             var echoClient = echo.createClient({
@@ -173,9 +172,9 @@ describe("Echo Node Client Test Suite", function(){
             });
 
             echoClient.addEvents('secret', {class:'class', source:'source'}, function(err){
-                (err === null).should.be.true;
+                (err === null).should.be.false;
+                done();
             });
-            done();
         });
         it("- add events should return no errors if everything is successful", function(done){
             var echoClient = echo.createClient({
@@ -183,7 +182,10 @@ describe("Echo Node Client Test Suite", function(){
             });
 
             var requestStub = sandbox.stub(request, 'post', function (options, callback) {
-                callback(null, {}, {
+                callback(
+                  null,
+                  {statusCode: 200},
+                  {
                     "class": "page.views",
                     "timestamp": 1324524509,
                     "user": "1234-5678-9012-3456",
@@ -191,7 +193,8 @@ describe("Echo Node Client Test Suite", function(){
                     "props": {
                         "url" : "https://foo.bar/baz.html"
                     }
-                });
+                  }
+              );
             });
 
             echoClient.addEvents('secret', {class:'class', source:'source'}, function(err, result){
@@ -209,7 +212,7 @@ describe("Echo Node Client Test Suite", function(){
         });
     });
 
-    describe('- query analytics tests', function(){        
+    describe('- query analytics tests', function(){
         it('- should throw error if no persona token supplied', function(done){
             var echoClient = echo.createClient({
                 echo_endpoint: endPoint
@@ -281,7 +284,7 @@ describe("Echo Node Client Test Suite", function(){
 
             var requestStub = sandbox.stub(request, 'get', function(options, callback) {
                 var data = "{\"head\": {\"type\": \"sum\",\"class\": \"player.timer.2\",\"property\": \"interval_with_decay\",\"group_by\": \"user\",\"filter\": {\"module_id\": \"5847ed0ef81ebd1f1b000001\",\"resource_id\": \"5899a87fd42410f2c9000001\"},\"from\": \"2016-08-29T00:00:00\",\"to\": \"2017-05-18T00:00:00\",\"count\": 2},\"results\": [{\"user\": \"8av3Jaj__vC9v9VIY_P-1w\",\"interval_with_decay\": 182920},{\"user\": \"d17T05nNTjG50sAp_R3RvQ\",\"interval_with_decay\": 21315}]}";
-                callback(null, {}, data);
+                callback(null, {statusCode: 200}, data);
             });
 
             var params = {
@@ -316,7 +319,7 @@ describe("Echo Node Client Test Suite", function(){
             };
 
             queryAnalytics();
-            
+
             queryAnalytics.should.not.throw('Invalid Analytics queryParams');
 
             done();
@@ -343,8 +346,8 @@ describe("Echo Node Client Test Suite", function(){
                 firstCall.args[0].headers['cache-control'].should.equal('none');
                 err.message.should.equal('Error communicating with Echo');
                 (typeof result).should.equal('undefined');
+                done();
             });
-            done();
         });
         it("- should return no errors if everything is successful", function(done){
             var echoClient = echo.createClient({
@@ -353,9 +356,9 @@ describe("Echo Node Client Test Suite", function(){
 
             var requestStub = sandbox.stub(request, 'get', function(options, callback) {
                 var data = "{\"head\": {\"type\": \"sum\",\"class\": \"player.timer.2\",\"property\": \"interval_with_decay\",\"group_by\": \"user\",\"filter\": {\"module_id\": \"5847ed0ef81ebd1f1b000001\"},\"user\": {\"exclude\": \"qVyfsQhlMY0T2_Bl7eotrg\"},\"from\": \"2017-02-01T00:00:00\",\"to\": \"2017-02-13T00:00:00\",\"count\": 2},\"results\": [{\"user\": \"8av3Jaj__vC9v9VIY_P-1w\",\"interval_with_decay\": 182920},{\"user\": \"d17T05nNTjG50sAp_R3RvQ\",\"interval_with_decay\": 21315}]}";
-                callback(null, {}, data);
+                callback(null, {statusCode: 200}, data);
             });
-    
+
             var params = {
                 class: 'player.timer.2',
                 property: 'interval_with_decay',
@@ -392,7 +395,7 @@ describe("Echo Node Client Test Suite", function(){
 
             var requestStub = sandbox.stub(request, 'get', function(options, callback) {
                 var data = "{\"head\": {\"type\": \"sum\",\"class\": \"player.timer.2\",\"property\": \"interval_with_decay\",\"group_by\": \"user\",\"filter\": {\"module_id\": \"5847ed0ef81ebd1f1b000001\"},\"user\": {\"exclude\": \"qVyfsQhlMY0T2_Bl7eotrg\"},\"from\": \"2017-02-01T00:00:00\",\"to\": \"2017-02-13T00:00:00\",\"count\": 2},\"results\": [{\"user\": \"8av3Jaj__vC9v9VIY_P-1w\",\"interval_with_decay\": 182920},{\"user\": \"d17T05nNTjG50sAp_R3RvQ\",\"interval_with_decay\": 21315}]}";
-                callback(null, {}, data);
+                callback(null, {statusCode: 200}, data);
             });
 
             var params = {
@@ -432,9 +435,9 @@ describe("Echo Node Client Test Suite", function(){
             var data = "<html><head>Test</head></html>";
 
             var requestStub = sandbox.stub(request, 'get', function(options, callback) {
-                callback(null, {}, data);
+                callback(null, {statusCode: 200}, data);
             });
-    
+
             var params = {
                 class: 'player.timer.2',
                 property: 'interval_with_decay',
@@ -452,9 +455,72 @@ describe("Echo Node Client Test Suite", function(){
                 requestStub.callCount.should.equal(1);
                 firstCall.args[0].method.should.equal('GET');
                 firstCall.args[0].headers['cache-control'].should.equal('none');
-                err.should.equal('Error parsing returned JSON: ' + data);
+                err.should.equal('Error parsing returned JSON');
                 done();
             });
         });
-    });
+        it("- should return error if non http 2xx reply", function(done){
+            var echoClient = echo.createClient({
+                echo_endpoint: endPoint
+            });
+
+            var data = "[]";
+
+            var requestStub = sandbox.stub(request, 'get', function(options, callback) {
+                callback(null, {statusCode: 400}, data);
+            });
+
+            var params = {
+                class: 'player.timer.2',
+                property: 'interval_with_decay',
+                group_by: 'user',
+                'filter.module_id': '5847ed0ef81ebd1f1b000001',
+                'user.exclude': 'qVyfsQhlMY0T2_Bl7eotrg',
+                from: '2017-02-01T00:00:00',
+                to: '2017-02-13T00:00:00'
+            };
+
+            echoClient.queryAnalytics('secret', 'sum', params, false, function(err, result){
+                var firstCall = requestStub.firstCall;
+                (err === null).should.be.false;
+                (typeof result).should.equal('undefined');
+                requestStub.callCount.should.equal(1);
+                firstCall.args[0].method.should.equal('GET');
+                firstCall.args[0].headers['cache-control'].should.equal('none');
+                err.should.equal('error response status code: 400');
+                done();
+            });
+        });
+        it("- should return error if non http 2xx reply with invalid parse", function(done){
+            var echoClient = echo.createClient({
+                echo_endpoint: endPoint
+            });
+
+            var data = "this is invalid";
+
+            var requestStub = sandbox.stub(request, 'get', function(options, callback) {
+                callback(null, {statusCode: 400}, data);
+            });
+
+            var params = {
+                class: 'player.timer.2',
+                property: 'interval_with_decay',
+                group_by: 'user',
+                'filter.module_id': '5847ed0ef81ebd1f1b000001',
+                'user.exclude': 'qVyfsQhlMY0T2_Bl7eotrg',
+                from: '2017-02-01T00:00:00',
+                to: '2017-02-13T00:00:00'
+            };
+
+            echoClient.queryAnalytics('secret', 'sum', params, false, function(err, result){
+                var firstCall = requestStub.firstCall;
+                (err === null).should.be.false;
+                (typeof result).should.equal('undefined');
+                requestStub.callCount.should.equal(1);
+                firstCall.args[0].method.should.equal('GET');
+                firstCall.args[0].headers['cache-control'].should.equal('none');
+                err.should.equal('error response status code: 400');
+                done();
+            });
+        });    });
 });
