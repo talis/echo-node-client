@@ -115,7 +115,7 @@ describe("Echo Node Client Test Suite", function(){
             });
 
             echoClient.addEvents('secret', {class:'class', source:'source'}, function(err){
-                (err === null).should.be.true;
+                (err === null).should.be.false;
                 done();
             });
         });
@@ -134,7 +134,7 @@ describe("Echo Node Client Test Suite", function(){
             });
 
             echoClient.addEvents('secret', {class:'class', source:'source'}, function(err){
-                (err === null).should.be.true;
+                (err === null).should.be.false;
                 done();
             });
         });
@@ -153,7 +153,7 @@ describe("Echo Node Client Test Suite", function(){
             });
 
             echoClient.addEvents('secret', {class:'class', source:'source'}, function(err){
-                (err === null).should.be.true;
+                (err === null).should.be.false;
                 done();
             });
         });
@@ -172,7 +172,7 @@ describe("Echo Node Client Test Suite", function(){
             });
 
             echoClient.addEvents('secret', {class:'class', source:'source'}, function(err){
-                (err === null).should.be.true;
+                (err === null).should.be.false;
                 done();
             });
         });
