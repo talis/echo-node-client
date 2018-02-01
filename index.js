@@ -175,7 +175,7 @@ function Client() {
       json: true
     };
 
-    debug('request objections', requestOptions);
+    debug('request options', requestOptions);
 
     request.post(requestOptions, function onResp(err, response, body) {
       var statusCode = response && response.statusCode
