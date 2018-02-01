@@ -184,7 +184,7 @@ function Client() {
 
       if (err || parseInt(statusCode / 100) !== 2) {
         error('[echoClient] addEvents error', { err: err, body: body, statusCode: statusCode });
-        callback(err || 'invalid status code: ' + statusCode);
+        callback(err || 'error response status code: ' + statusCode);
       } else {
         callback(null, body);
       }
@@ -257,7 +257,7 @@ function Client() {
 
       if (err || parseInt(statusCode / 100) !== 2) {
         error('[echoClient] queryAnalytics error', { err: err, body: rawBody, statusCode: statusCode });
-        callback(err || 'invalid status code: ' + statusCode);
+        callback(err || 'error response status code: ' + statusCode);
       } else {
         parseJSON(rawBody, callback);
       }
